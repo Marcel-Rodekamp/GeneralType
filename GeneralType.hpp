@@ -93,6 +93,97 @@ concept areAddable = requires(T t, U u) {
     { t + u } -> std::convertible_to<decltype(t + u)>;
 };
 
+//! A concept that checks if two types are subtractable 
+template<typename T, typename U>
+concept areSubtractable = requires(T t, U u) {
+    { t - u } -> std::convertible_to<decltype(t - u)>;
+};
+
+//! A concept that checks if two types are multipliable 
+template<typename T, typename U>
+concept areMultipliable = requires(T t, U u) {
+    { t * u } -> std::convertible_to<decltype(t * u)>;
+};
+
+//! A concept that checks if two types are multipliable 
+template<typename T, typename U>
+concept areDivisible = requires(T t, U u) {
+    { t / u } -> std::convertible_to<decltype(t / u)>;
+};
+
+//! A concept that checks if two types can be used with the modulus operator 
+template<typename T, typename U>
+concept areModulus = requires(T t, U u) {
+    { t % u } -> std::convertible_to<decltype(t % u)>;
+};
+
+//! A concept that checks if two types are bitwise and-able
+template<typename T, typename U>
+concept areBitwiseAndable = requires(T t, U u) {
+    { t & u } -> std::convertible_to<decltype(t & u)>;
+};
+
+//! A concept that checks if two types are logical and-able
+template<typename T, typename U>
+concept areLogicalAndable = requires(T t, U u) {
+    { t && u } -> std::convertible_to<decltype(t && u)>;
+};
+
+//! A concept that checks if two types are exclusive or-able
+template<typename T, typename U>
+concept areExclusiveOrable = requires(T t, U u) {
+    { t ^ u } -> std::convertible_to<decltype(t ^ u)>;
+};
+
+//! A concept that checks if two types are Bitwise inclusive or-able 
+template<typename T, typename U>
+concept areBitwiseInclusiveOrable = requires(T t, U u) {
+    { t | u } -> std::convertible_to<decltype(t | u)>;
+};
+
+//! A concept that checks if two types are Logical inclusive or-able 
+template<typename T, typename U>
+concept areLogicalInclusiveOrable = requires(T t, U u) {
+    { t || u } -> std::convertible_to<decltype(t || u)>;
+};
+
+//! A concept that checks if two types are smaller-comparable 
+template<typename T, typename U>
+concept areSmallerComparable = requires(T t, U u) {
+    { t < u } -> std::convertible_to<decltype(t < u)>;
+};
+
+//! A concept that checks if two types are larger-comparable 
+template<typename T, typename U>
+concept areLargerComparable = requires(T t, U u) {
+    { t > u } -> std::convertible_to<decltype(t > u)>;
+};
+
+//! A concept that checks if two types are smaller equal-comparable 
+template<typename T, typename U>
+concept areSmallerEqualComparable = requires(T t, U u) {
+    { t <= u } -> std::convertible_to<decltype(t <= u)>;
+};
+
+//! A concept that checks if two types are larger equal-comparable 
+template<typename T, typename U>
+concept areLargerEqualComparable = requires(T t, U u) {
+    { t >= u } -> std::convertible_to<decltype(t >= u)>;
+};
+
+
+//! A concept that checks if two types are equality-comparable 
+template<typename T, typename U>
+concept areEqualityComparable = requires(T t, U u) {
+    { t == u } -> std::convertible_to<decltype(t == u)>;
+};
+
+//! A concept that checks if two types are inequality-comparable 
+template<typename T, typename U>
+concept areInequalityComparable = requires(T t, U u) {
+    { t != u } -> std::convertible_to<decltype(t != u)>;
+};
+
 }
 
 /*! 
@@ -139,7 +230,7 @@ class GeneralType{
     //! Move-assign the GeneralType<Types...> from an object with type Type;
     template<typename Type>
     GeneralType<Types_...> & operator=( Type && obj ){
-        obj_ = std::move(obj);
+        obj_ = obj;
         return *this;
     }
 
@@ -299,9 +390,25 @@ class GeneralType{
         );
     }
 
+    // Todo:
+    //! Addition assignment operator, forwards to the addition operator of the held type
+    //! Subtraction assignment operator, forwards to the addition operator of the held type
+    //! Multiplication assignment operator, forwards to the addition operator of the held type
+    //! Division assignment operator, forwards to the addition operator of the held type
+    //! Modulus assignment operator, forwards to the addition operator of the held type
+    //! Bitwise AND assignment operator, forwards to the addition operator of the held type
+    //! Bitwise Inclusive OR assignment operator, forwards to the addition operator of the held type
+    //! Exclusive OR assignment operator, forwards to the addition operator of the held type
+    //! Right shift assignment operator, forwards to the addition operator of the held type
+    //! Left shift assignment operator, forwards to the addition operator of the held type
+    //! Member selection operator, forwards to the addition operator of the held type
+    //! Pointer-to-member selection operator, forwards to the addition operator of the held type
+
     // =========================================================================================
     // Binary Operators
     // =========================================================================================
+    //! Right shift operator, forwards to the addition operator of the held type
+    //! Left shift operator, forwards to the addition operator of the held type
     
     //! Addition operator, forwards to the addition operator of the held type
     GeneralType<Types_...> operator+(GeneralType<Types_...> rhs){
@@ -327,8 +434,374 @@ class GeneralType{
         );
     }
 
+    //! Subtraction operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator-(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areSubtractable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            // This operation somehow requires long int in the std::variant
+                            // I don't understand why, but I added it as a fix as default 
+                            // to the obj_
+                            return GeneralType<Types_...>( 
+                                lhs_arg - rhs_arg
+                            );
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator- on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Multiplication operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator*(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areMultipliable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg * rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator* on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Division operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator/(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areDivisible<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg / rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator/ on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Modulus operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator%(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areModulus<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg % rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator% on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Bitwise AND operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator&(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areBitwiseAndable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg & rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator& on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Logical AND operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator&&(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areLogicalAndable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg && rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator&& on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Exclusive Or operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator^(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areExclusiveOrable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg ^ rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator^ on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Bitwise inclusive Or operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator|(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areExclusiveOrable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg | rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator| on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Logical inclusive Or operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator||(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areLogicalInclusiveOrable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg || rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator|| on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Comparison smaller operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator<(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areSmallerComparable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg < rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator< on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Comparison larger operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator>(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areLargerComparable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg > rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator> on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Comparison smaller equal operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator<=(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areSmallerEqualComparable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg <= rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator<= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Comparison larger equal operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator>=(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areLargerEqualComparable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg >= rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator>= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Comparison Equality operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator==(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areEqualityComparable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg == rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator== on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
+    //! Comparison Inequality operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator!=(GeneralType<Types_...> rhs){
+        return std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areInequalityComparable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            return GeneralType<Types_...>(lhs_arg != rhs_arg);
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator=! on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                            return GeneralType<Types_...>(lhs_arg);
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+    }
+
     private:
     // Store the held element in a std::variant
     // The std::variant is the heart of this implementation, basically that is what the EntryImpl boils down to
-    std::variant<Types_...> obj_;
+    // The long int implements a fix for the subtraction operator. I don't understand why it is needed, but it works
+    std::variant<long int, Types_...> obj_;
 };

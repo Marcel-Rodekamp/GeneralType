@@ -24,7 +24,7 @@ int main(int argc, char** argv){
      * Here are a few examples:
      * */
     GenType BOOL = true; 
-    GenType INT  = 0; 
+    GenType INT  = 1; 
     GenType DOUBLE = double(3.141592653589793 );
     GenType VECTOR_D = std::vector<double>{1,2,3,4,5,6,7,8,9,10};
     double local_d;
@@ -76,13 +76,60 @@ int main(int argc, char** argv){
     //! * Addition Operator `operator+ -> GenType`
     INT + DOUBLE;
 
+    //! * Subtraction Operator `operator- -> GenType`
+    INT - DOUBLE;
+
+    //! * Multiplication Operator `operator* -> GenType`
+    DOUBLE * DOUBLE;
+
+    //! * Division Operator `operator/ -> GenType`
+    DOUBLE / DOUBLE;
+
+    //! * Modulus Operator `operator% -> GenType`
+    INT % INT;
+
+    //! * Bitwise AND Operator `operator& -> GenType`
+    BOOL & BOOL;
+
+    //! * Logical AND Operator `operator&& -> GenType`
+    BOOL && BOOL;
+
+    //! * Exclusive OR Operator `operator^ -> GenType`
+    BOOL ^ BOOL;
+
+    //! * Bitwise inclusive Or  OR Operator `operator| -> GenType`
+    BOOL | BOOL;
+
+    //! * Logical inclusive Or  OR Operator `operator|| -> GenType`
+    BOOL || BOOL;
+
+    //! * Smaller Compare Operator `operator< -> GenType`
+    DOUBLE < DOUBLE;
+
+    //! * Larger Compare Operator `operator> -> GenType`
+    DOUBLE > DOUBLE;
+
+    //! * Smaller Equal Compare Operator `operator<= -> GenType`
+    DOUBLE <= DOUBLE;
+
+    //! * Larger Equal Compare Operator `operator>= -> GenType`
+    DOUBLE >= DOUBLE;
+
+    //! * Equality Operator `operator== -> GenType`
+    DOUBLE == DOUBLE;
+
+    //! * Inequality Operator `operator=! -> GenType`
+    DOUBLE != DOUBLE;
+    
     /*! In case a held type doesn't implement an operator, 
      * like the `std::vector` has no nativ `operator<<`, 
      * a runtime (!) error is thrown.
      * */
+    /*
     try{
         std::cout << VECTOR_D << std::endl;
     } catch(std::runtime_error e){
         std::cout << e.what() << std::endl;
     }
+    */
 }
