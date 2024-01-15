@@ -184,7 +184,67 @@ concept areInequalityComparable = requires(T t, U u) {
     { t != u } -> std::convertible_to<decltype(t != u)>;
 };
 
-}
+//! A concept that checks if two types are add assign-able
+template<typename T, typename U>
+concept areAddAssignable = requires(T t, U u) {
+    { t += u } -> std::convertible_to<decltype(t += u)>;
+};
+
+//! A concept that checks if two types are subtract assign-able
+template<typename T, typename U>
+concept areSubtractAssignable = requires(T t, U u) {
+    { t -= u } -> std::convertible_to<decltype(t -= u)>;
+};
+
+//! A concept that checks if two types are multiply assign-able
+template<typename T, typename U>
+concept areMultiplyAssignable = requires(T t, U u) {
+    { t *= u } -> std::convertible_to<decltype(t *= u)>;
+};
+
+//! A concept that checks if two types are division assign-able
+template<typename T, typename U>
+concept areDivisionAssignable = requires(T t, U u) {
+    { t /= u } -> std::convertible_to<decltype(t /= u)>;
+};
+
+//! A concept that checks if two types are modulus assign-able
+template<typename T, typename U>
+concept areModulusAssignable = requires(T t, U u) {
+    { t %= u } -> std::convertible_to<decltype(t %= u)>;
+};
+
+//! A concept that checks if two types are bitwise and assign-able
+template<typename T, typename U>
+concept areBitwiseAndAssignable = requires(T t, U u) {
+    { t &= u } -> std::convertible_to<decltype(t &= u)>;
+};
+
+//! A concept that checks if two types are bitwise or assign-able
+template<typename T, typename U>
+concept areBitwiseInclusiveOrAssignable = requires(T t, U u) {
+    { t |= u } -> std::convertible_to<decltype(t |= u)>;
+};
+
+//! A concept that checks if two types are exclusive or assign-able
+template<typename T, typename U>
+concept areExclusiveOrAssignable = requires(T t, U u) {
+    { t ^= u } -> std::convertible_to<decltype(t ^= u)>;
+};
+
+//! A concept that checks if two types are right shift assign-able
+template<typename T, typename U>
+concept areRightShiftAssignable = requires(T t, U u) {
+    { t >>= u } -> std::convertible_to<decltype(t >>= u)>;
+};
+
+//! A concept that checks if two types are left shift assign-able
+template<typename T, typename U>
+concept areLeftShiftAssignable = requires(T t, U u) {
+    { t <<= u } -> std::convertible_to<decltype(t <<= u)>;
+};
+
+} // namespace 
 
 /*! 
  * Implementation of a holder class that can hold any of the types specified in the template parameter pack
@@ -391,19 +451,7 @@ class GeneralType{
     }
 
     // Todo:
-    //! Addition assignment operator, forwards to the addition operator of the held type
-    //! Subtraction assignment operator, forwards to the addition operator of the held type
-    //! Multiplication assignment operator, forwards to the addition operator of the held type
-    //! Division assignment operator, forwards to the addition operator of the held type
-    //! Modulus assignment operator, forwards to the addition operator of the held type
-    //! Bitwise AND assignment operator, forwards to the addition operator of the held type
-    //! Bitwise Inclusive OR assignment operator, forwards to the addition operator of the held type
-    //! Exclusive OR assignment operator, forwards to the addition operator of the held type
-    //! Right shift assignment operator, forwards to the addition operator of the held type
-    //! Left shift assignment operator, forwards to the addition operator of the held type
-    //! Member selection operator, forwards to the addition operator of the held type
-    //! Pointer-to-member selection operator, forwards to the addition operator of the held type
-
+    //
     // =========================================================================================
     // Binary Operators
     // =========================================================================================
@@ -797,6 +845,256 @@ class GeneralType{
             },
             this->obj_
         );
+    }
+
+    //! Addition assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator+=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areAddAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg += rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator+= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+ 
+    //! Subtraction assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator-=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areSubtractAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg -= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator-= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+
+    //! Multiplication assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator*=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areMultiplyAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg *= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator*= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+
+    //! Division assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator/=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areDivisionAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg /= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator/= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+
+    //! Modulus assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator%=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr ( areModulusAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg %= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator%= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+
+    //! Bitwise AND assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator&=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg] (auto & rhs_arg){
+                        if constexpr (areBitwiseAndAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg &= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator&= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+
+    //! Bitwise Inclusive OR assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator|=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs,this](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg,this] (auto & rhs_arg){
+                        if constexpr (areBitwiseInclusiveOrAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg |= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator|= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+
+    //! Exclusive OR assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator^=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs,this](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg,this] (auto & rhs_arg){
+                        if constexpr (areExclusiveOrAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg ^= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator^= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }
+    
+    //! Right shift assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator>>=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs,this](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg,this] (auto & rhs_arg){
+                        if constexpr (areRightShiftAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg >>= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator>>= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
+    }   
+    
+    //! Left shift assignment operator, forwards to the addition operator of the held type
+    GeneralType<Types_...> operator<<=(GeneralType<Types_...> rhs){
+        std::visit(
+            [&rhs,this](auto & lhs_arg){
+                return std::visit(
+                    [&lhs_arg,this] (auto & rhs_arg){
+                        if constexpr (areLeftShiftAssignable<decltype(lhs_arg),decltype(rhs_arg)> ){
+                            lhs_arg <<= rhs_arg;
+                        } else {
+                            throw std::runtime_error(
+                                "Can not invoke operator<<= on held types (" 
+                                + typeToString<decltype(lhs_arg)>() + " and " 
+                                + typeToString<decltype(rhs_arg)>() + ")"
+                            );
+                        }
+                    },
+                    rhs.obj_
+                );
+            },
+            this->obj_
+        );
+
+        return *this;
     }
 
     private:

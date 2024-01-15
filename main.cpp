@@ -120,6 +120,37 @@ int main(int argc, char** argv){
 
     //! * Inequality Operator `operator=! -> GenType`
     DOUBLE != DOUBLE;
+
+    //! * Add assign Operator `operator+= -> GenType`
+    DOUBLE += DOUBLE;
+
+    //! * Subtract assign Operator `operator-= -> GenType`
+    DOUBLE -= INT;
+
+    //! * Multiply assign Operator `operator*= -> GenType`
+    DOUBLE *= DOUBLE;
+
+    //! * Division assign Operator `operator/= -> GenType`
+    DOUBLE /= DOUBLE;
+    
+    //! * Modulus Operator `operator%= -> GenType`
+    INT %= INT;
+
+    //! * Bitwise AND assign Operator `operator&= -> GenType`
+    BOOL &= BOOL;
+
+    //! * Bitwise inclusive OR assign Operator `operator|= -> GenType`
+    BOOL |= BOOL;
+    
+    //! * Bitwise exclusive OR assign Operator `operator^= -> GenType`
+    BOOL ^= BOOL;
+
+    //! * Right shift assign Operator `operator>>= -> GenType`
+    INT >>= INT;
+
+    std::cout << DOUBLE << std::endl;
+    
+    
     
     /*! In case a held type doesn't implement an operator, 
      * like the `std::vector` has no nativ `operator<<`, 
