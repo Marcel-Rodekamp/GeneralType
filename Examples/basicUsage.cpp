@@ -1,5 +1,4 @@
-#include "GeneralType.hpp"
-
+#include "../GeneralType.hpp"
 #include <complex>
 #include <vector>
 
@@ -31,6 +30,22 @@ int main(int argc, char** argv){
     GenType DOBLE_PTR = &local_d;
 
     /*!
+     * An important feature is that we can reassign variables with new types if required
+     * */
+    GenType VAR = std::vector<bool>{true,false};
+
+    // print vector content
+    std::cout << std::boolalpha 
+              << "VAR Holding vector<bool>: {" 
+              << VAR[0] << ", " << VAR[1] << "}" << std::endl;
+
+    // reassign
+    VAR = double(1.41);
+    
+    // print new content
+    std::cout << "VAR Holding double: " << VAR << std::endl;
+
+    /*!
      * The usage of the class should be as easy as possible. 
      * So if possible we don't want to cast the `GenType` to it's held type. 
      * Instead we want to use the operators/functions of the held type directly.
@@ -45,8 +60,8 @@ int main(int argc, char** argv){
      * */
 
     //! * Streaming Operator `operator<<`
-    std::cout << std::boolalpha << BOOL << std::endl;
-    std::cout << DOUBLE << std::endl;
+    std::cout << std::boolalpha << "Content of BOOL: " << BOOL << std::endl;
+    std::cout << "Content of DOUBLE: " << DOUBLE << std::endl;
 
     //! * Negation Operator `operator! -> GenType`
     !BOOL;
@@ -148,19 +163,13 @@ int main(int argc, char** argv){
     //! * Right shift assign Operator `operator>>= -> GenType`
     INT >>= INT;
 
-    std::cout << DOUBLE << std::endl;
-    
-    
-    
     /*! In case a held type doesn't implement an operator, 
      * like the `std::vector` has no nativ `operator<<`, 
      * a runtime (!) error is thrown.
      * */
-    /*
     try{
         std::cout << VECTOR_D << std::endl;
     } catch(std::runtime_error e){
-        std::cout << e.what() << std::endl;
+        std::cout << "Caught: " << e.what() << std::endl;
     }
-    */
 }
