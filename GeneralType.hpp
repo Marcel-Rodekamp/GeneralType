@@ -244,6 +244,12 @@ concept areLeftShiftAssignable = requires(T t, U u) {
     { t <<= u } -> std::convertible_to<decltype(t <<= u)>;
 };
 
+//! A concept that checks if a type has the access operator[]
+template<typename T, typename U>
+concept areAccessible = requires(T t, U key) {
+    { t[key] } -> std::convertible_to<decltype(t[key])>;
+};
+
 } // namespace 
 
 /*! 
@@ -450,13 +456,48 @@ class GeneralType{
         );
     }
 
-    // Todo:
-    //
+
+    //! Access operator, forwards to the access operator of the held type
+    GeneralType<Types_...> operator[](const auto & key){
+        return std::visit(
+            [&key](auto & arg){
+                if constexpr( areAccessible<decltype(arg),decltype(key)> ){
+                    return GeneralType<Types_...>(arg[key]);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator[] on held type (" 
+                        + typeToString<decltype(arg)>() + ")"
+                    );
+                    return GeneralType<Types_...>(arg);
+                }
+            },
+            this->obj_
+        );
+    }
+
+    //! const Access operator, forwards to the access operator of the held type
+    GeneralType<Types_...> operator[](const auto & key) const {
+        return std::visit(
+            [&key](auto & arg){
+                if constexpr( areAccessible<decltype(arg),decltype(key)> ){
+                    return GeneralType<Types_...>(arg[key]);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator[] on held type (" 
+                        + typeToString<decltype(arg)>() + ")"
+                    );
+                    return GeneralType<Types_...>(arg);
+                }
+            },
+            this->obj_
+        );
+    }
+
+
     // =========================================================================================
     // Binary Operators
     // =========================================================================================
-    //! Right shift operator, forwards to the addition operator of the held type
-    //! Left shift operator, forwards to the addition operator of the held type
+
     
     //! Addition operator, forwards to the addition operator of the held type
     GeneralType<Types_...> operator+(GeneralType<Types_...> rhs){
@@ -1097,9 +1138,34 @@ class GeneralType{
         return *this;
     }
 
-    private:
+    //! A function, that checks if `Type` is held by provided GeneralType
+    template<typename Type, typename ... Types>
+    friend constexpr bool holdsType( const GeneralType<Types...> & gt );
+    
+    //protected:
+
     // Store the held element in a std::variant
     // The std::variant is the heart of this implementation, basically that is what the EntryImpl boils down to
     // The long int implements a fix for the subtraction operator. I don't understand why it is needed, but it works
     std::variant<long int, Types_...> obj_;
 };
+
+//! A function, that checks if `Type` is held by provided GeneralType
+template<typename Type, typename ... Types>
+constexpr bool holdsType( const GeneralType<Types...> & gt ) {
+    if constexpr( (std::is_same_v<Type,Types> || ... ) ){
+        return std::holds_alternative<Type>(gt.obj_);
+    } else {
+        return false;
+    }
+}
+
+// ToDo: Add overloads to all operators like operator* where non-GeneralType types are used. 
+// Example:
+// `GenType x = 3;`
+// This works:
+// `x * 0.2;`
+// As the 0.2 is converted to a GenType and then the implemented operator* is invoked.
+// This does not yet work:
+// `0.2 * x;`
+// As there is no operator*(double,GenType)
