@@ -172,4 +172,86 @@ int main(int argc, char** argv){
     } catch(std::runtime_error e){
         std::cout << "Caught: " << e.what() << std::endl;
     }
+
+    /*! All the above operators are also implemented when given a appropriate c++ type*/
+    // create a test variable holding a double
+    VAR = 1.357;
+    double var_cpp = 0.5981;
+
+    //! Addition with a C++-Type (here double) from the left/right
+    VAR + var_cpp;
+    var_cpp + VAR;
+
+    //! Subtraction with a C++-Type (here double) from the left/right
+    VAR - var_cpp;
+    var_cpp - VAR;
+
+    //! Multiplication with a C++-Type (here double) from the left/right
+    VAR * var_cpp;
+    var_cpp * VAR;
+
+    //! Division with a C++-Type (here double) from the left/right
+    VAR * var_cpp;
+    var_cpp * VAR;
+
+    //! Modulus with a C++-Type (here double) from the left/right
+    INT = 2;
+    int var_int = 1;
+    INT % var_int;
+    var_int % INT;
+
+    //! Bitwise AND with a C++-Type (here double) from the left/right
+    bool var_bool = true;
+    BOOL & var_bool;
+    var_bool & BOOL;
+
+    //! Logical AND with a C++-Type (here double) from the left/right
+    // ToDo:
+    //This is not possible, ambiguous overload with operator&&(bool,bool)
+    //BOOL && var_bool;
+    //Currently we have to explicitly cast here:
+    bool(BOOL) && var_bool;
+    var_bool && BOOL;
+
+    //! Exclusive OR with a C++-Type (here double) from the left/right
+    BOOL ^ var_bool;
+    var_bool ^ BOOL;
+
+    //! Bitwise inclusive Or with a C++-Type (here double) from the left/right
+    BOOL | var_bool;
+    var_bool | BOOL;
+
+    //! Inclusive Or with a C++-Type (here double) from the left/right
+    // ToDo:
+    //This is not possible, ambiguous overload with operator||(bool,bool)
+    //BOOL || var_bool;
+    //Currently we have to explicitly cast here:
+    bool(BOOL) || var_bool;
+    var_bool || BOOL;
+
+    //! Smaller-Comparison with a C++-Type (here double) from the left/right
+    VAR < var_cpp;
+    var_cpp < VAR;
+
+    //! Larger-Comparison with a C++-Type (here double) from the left/right
+    VAR > var_cpp;
+    var_cpp > VAR;
+
+    //! Smaller-Equal-Comparison with a C++-Type (here double) from the left/right
+    VAR <= var_cpp;
+    var_cpp <= VAR;
+
+    //! Larger-Comparison with a C++-Type (here double) from the left/right
+    VAR >= var_cpp;
+    var_cpp >= VAR;
+
+    //! Equality-Comparison with a C++-Type (here double) from the left/right
+    VAR == var_cpp;
+    var_cpp == VAR;
+
+    //! Inequality-Comparison with a C++-Type (here double) from the left/right
+    VAR != var_cpp;
+    var_cpp != VAR;
+
+
 }

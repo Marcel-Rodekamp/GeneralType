@@ -1138,34 +1138,378 @@ class GeneralType{
         return *this;
     }
 
+    // =========================================================================================
+    // External Operators
+    // =========================================================================================
+    
     //! A function, that checks if `Type` is held by provided GeneralType
     template<typename Type, typename ... Types>
-    friend constexpr bool holdsType( const GeneralType<Types...> & gt );
+    friend constexpr bool holdsType( const GeneralType<Types...> & gt ){
+        if constexpr( (std::is_same_v<Type,Types> || ... ) ){
+            return std::holds_alternative<Type>(gt.obj_);
+        } else {
+            return false;
+        }
+    }
+
+    //! Addition operator with non-GeneralType, forwards to the addition operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator+(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areAddable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS + rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator+(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Subtraction operator with non-GeneralType, forwards to the subtraction operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator-(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areSubtractable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS - rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator-(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
     
-    //protected:
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Multiplication operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator*(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areMultipliable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS * rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator*(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Devision operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator/(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areDivisible<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS / rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator/(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Modulus operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator%(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areModulus<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS % rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator%(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Bitwise AND operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator&(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areBitwiseAndable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS & rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator&(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Logically AND operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator&&(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areLogicalAndable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS && rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator&&(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Bitwise inclusive OR operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator|(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areBitwiseInclusiveOrable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS | rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator|(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Exclusive OR operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator^(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areExclusiveOrable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS ^ rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator^(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Logical inclusive OR operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator||(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areLogicalInclusiveOrable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS || rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator||(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Smaller operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator<(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areSmallerComparable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS < rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator<(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Larger operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator>(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areLargerComparable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS > rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator>(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Smaller-Equal operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator<=(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areSmallerEqualComparable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS <= rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator<=(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Larger-Equal operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend GeneralType<Types...> operator>=(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areLargerEqualComparable<decltype(LHS),decltype(rhs_arg)> ){
+                    return GeneralType<Types...>(LHS >= rhs_arg);
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator>=(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return GeneralType<Types...>(rhs_arg);
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    //! Equality operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend bool operator==(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areEqualityComparable<decltype(LHS),decltype(rhs_arg)> ){
+                    return LHS == rhs_arg;
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator==(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return false;
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+
+    //! Equality operator with non-GeneralType, forwards to the multiplication operator of the held type
+    template<typename Type, typename ... Types>
+        requires((std::is_same_v<Type,Types> || ... ))
+    friend bool operator!=(const Type & LHS, const GeneralType<Types...> & RHS ){
+        return std::visit(
+            [&LHS](auto & rhs_arg){
+                if constexpr (areInequalityComparable<decltype(LHS),decltype(rhs_arg)> ){
+                    return LHS != rhs_arg;
+                } else {
+                    throw std::runtime_error(
+                        "Can not invoke operator!=(Type, GeneralType) on held types (" 
+                        + typeToString<decltype(LHS)>() + " and " 
+                        + typeToString<decltype(rhs_arg)>() + ")"
+                    );
+    
+                    return false;
+                }    
+            },
+            RHS.obj_
+        );
+    }
+
+    protected:
 
     // Store the held element in a std::variant
     // The std::variant is the heart of this implementation, basically that is what the EntryImpl boils down to
     // The long int implements a fix for the subtraction operator. I don't understand why it is needed, but it works
     std::variant<long int, Types_...> obj_;
-};
+}; // GeneralType<Types_...>
 
-//! A function, that checks if `Type` is held by provided GeneralType
-template<typename Type, typename ... Types>
-constexpr bool holdsType( const GeneralType<Types...> & gt ) {
-    if constexpr( (std::is_same_v<Type,Types> || ... ) ){
-        return std::holds_alternative<Type>(gt.obj_);
-    } else {
-        return false;
-    }
-}
-
-// ToDo: Add overloads to all operators like operator* where non-GeneralType types are used. 
-// Example:
-// `GenType x = 3;`
-// This works:
-// `x * 0.2;`
-// As the 0.2 is converted to a GenType and then the implemented operator* is invoked.
-// This does not yet work:
-// `0.2 * x;`
-// As there is no operator*(double,GenType)
